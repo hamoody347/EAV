@@ -50,16 +50,29 @@ The ``` GET /api/{model} ``` route supports filtering for all 3 models.
 
  For the use of different operators, pass the name of the field followed by `_operator` and then the operator itself
 
- `projects?filters[name]=Project1&filters[name_operator]=LIKE`
 
-### Operators
- The possible operators are `>, <, gt, lt, LIKE and like`
+### Supported Operators
+#### Here are the available operators:
+
+* `>`: Greater than
+
+* `<`: Less than
+* `gt`: Greater than (alternative)
+* `lt`: Less than (alternative)
+* `LIKE`: SQL LIKE operator (case-insensitive)
+* `like`: SQL LIKE operator (case-sensitive)
+
+#### Example Usage:
+
+* `GET projects?filters[name]=Project1&filters[name_operator]=LIKE`
+
+* `GET /api/projects?filters[created_at]=2025-03-06&filters[created_at_operator]=>`
 
  ## Sample Request / Response
 
  Following are some requests and the expected responses.
 
-`POST 127.0.0.1:8000/api/projects`
+`POST /api/projects`
 
  ### Request
  ``` JSON
@@ -125,7 +138,13 @@ The ``` GET /api/{model} ``` route supports filtering for all 3 models.
 }
 ```
 
-`POST 127.0.0.1:8000/login`
+### Authentication
+
+To access any of the protected API routes, you must authenticate using Laravel Passport. The `/login` route will return a personal access token.
+
+Use the following request to get a token:
+
+`POST /login`
 
 ### Request
 ``` JSON
@@ -137,11 +156,10 @@ The ``` GET /api/{model} ``` route supports filtering for all 3 models.
 ### Response
 ``` JSON
 {
-    "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI5ZTVlYjU3MS02OGRhLTRjNjItYjM5ZS1kMDMzN2I5ZjkyNzIiLCJqdGkiOiJiZjQwNjY3MWNlZTA3MTk4MTBkMzZhZjcwN2NhM2Y0MTg4ZTZjNDI2NmU1OGJmNjI5ZDM2MmQyZTViY2IwMGM2NTg4Y2E1NjI3OGRhMzEzZiIsImlhdCI6MTc0MTMwMjE3OC41OTEwMDQsIm5iZiI6MTc0MTMwMjE3OC41OTEwMDksImV4cCI6MTc3MjgzODE3OC41Mjg1MjcsInN1YiI6IjIiLCJzY29wZXMiOltdfQ.enW7hFSLe39rCdvc-3UyXH14C4aI0WoOAKKgrGF7mHIHMKcNzlXQEUmshbxSR2NdqWZcouSJna5Y0vbhM8Ik3BDxoTXby65HlGfNfsycjFnsVjTd0JoUsxN4QWuZOViwwPiIls2osTUZt1Bhx2UNuD5XsManhxbWFcet6qoN4Lz78dj1WSB4bt_YGjldYG9yXwpFOsdyHU3-A8b1ISaJdR5wQY42HxY2FN1NHfzaSBHTPDulQtOeBJFUndBWrnsitAsF4sRz5TbHlqbqUTHO8fdoQft7nPj7KO8zXrBrcKeCHNCckrRFh1rqnYQlM01At6iUQBS50VGQDlWjdb3BjmdBgshyBJoimPUJvQVJW1gJkjxcJ7oAzmbxQ0ND8zp7eemkliyrJdGjzwBnLv0urTZ_hKuI-uIdoZkG7huNlDQl2hEZ09YletPEnL0Bc0uqbQeC50u76Q4wAhRI7Zsh9f-O72652PLSjcWyLWwFvgCHgsHyyuHyP5X7VhRz6ADDN7f_wJmNwn8flrLyz7EUwOezecGpkxCGTx9iwQ2ZX2hevwyTvYrP22lqbkr5VpxbmZPvccPztMxh8t1knvqDqJMV4jIb-9Ox4vI0gF1Y06T0ftaEvLX-cYVjOJMpOoaOr2pdf4J5pQkBll9bYXMY9d-8Yye1_u_Ok7JI-8fIfpI"
+    "token": "your_personal_access_token"
 }
 ```
 
-## Testing Credentials
+Use the token for subsequent API requests by including it in the Authorization header as a Bearer token:
 
-### email: `admin@example.com`
-### password: `password`
+`Authorization: Bearer your_personal_access_token`
