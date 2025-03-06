@@ -1,66 +1,147 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+## Installation
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Install dependancies
+```
+composer install
+```
 
-## About Laravel
+Run migrations
+```
+php artisan migrate --seed
+```
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Create passport client
+```
+php artisan passport:client --personal
+```
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Run server
+```
+php artisan serve
+```
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Usage
 
-## Learning Laravel
+### Routes
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Project, Timesheet & User models support CRUD operations.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+```
+GET /api/{model}
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+GET /api/{model}/{id}
 
-## Laravel Sponsors
+POST /api/{model}
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+PUT /api/{model}/{id}
 
-### Premium Partners
+DELETE /api/{model}/{id}
+```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+### Filtering
 
-## Contributing
+The ``` GET /api/{model} ``` route supports filtering for all 3 models.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+ By default all filters will use the `=` operator.
 
-## Code of Conduct
+ The syntax to pass a filter will be `projects?filters[name]=Project1`.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+ This should have the exact field name.
 
-## Security Vulnerabilities
+ For the use of different operators, pass the name of the field followed by `_operator` and then the operator itself
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+ `projects?filters[name]=Project1&filters[name_operator]=LIKE`
 
-## License
+### Operators
+ The possible operators are `>, <, gt, lt, LIKE and like`
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+ ## Sample Request / Response
+
+ Following are some requests and the expected responses.
+
+`POST 127.0.0.1:8000/api/projects`
+
+ ### Request
+ ``` JSON
+{
+    "name": "Sample Project",
+    "status": "active",
+    "attrs": [
+        {
+            "attribute_id": 1,
+            "value": "Quality Assurance"
+        },
+        {
+            "attribute_id": 2,
+            "value": 3000
+        }
+    ]
+}
+ ```
+
+### Response
+
+``` JSON
+{
+    "name": "Sample Project",
+    "status": "active",
+    "updated_at": "2025-03-06T22:56:07.000000Z",
+    "created_at": "2025-03-06T22:56:07.000000Z",
+    "id": 17,
+    "attribute_values": [
+        {
+            "id": 15,
+            "value": "Quality Assurance",
+            "attribute_id": 1,
+            "entity_type": "App\\Models\\Project",
+            "entity_id": 17,
+            "created_at": "2025-03-06T22:56:07.000000Z",
+            "updated_at": "2025-03-06T22:56:07.000000Z",
+            "attribute": {
+                "id": 1,
+                "name": "department",
+                "type": "select",
+                "created_at": "2025-03-06T21:16:59.000000Z",
+                "updated_at": "2025-03-06T21:16:59.000000Z"
+            }
+        },
+        {
+            "id": 16,
+            "value": "3000",
+            "attribute_id": 2,
+            "entity_type": "App\\Models\\Project",
+            "entity_id": 17,
+            "created_at": "2025-03-06T22:56:07.000000Z",
+            "updated_at": "2025-03-06T22:56:07.000000Z",
+            "attribute": {
+                "id": 2,
+                "name": "budget",
+                "type": "number",
+                "created_at": "2025-03-06T21:16:59.000000Z",
+                "updated_at": "2025-03-06T21:16:59.000000Z"
+            }
+        }
+    ]
+}
+```
+
+`POST 127.0.0.1:8000/login`
+
+### Request
+``` JSON
+{
+    "email": "admin@example.com",
+    "password": "password"
+}
+```
+### Response
+``` JSON
+{
+    "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI5ZTVlYjU3MS02OGRhLTRjNjItYjM5ZS1kMDMzN2I5ZjkyNzIiLCJqdGkiOiJiZjQwNjY3MWNlZTA3MTk4MTBkMzZhZjcwN2NhM2Y0MTg4ZTZjNDI2NmU1OGJmNjI5ZDM2MmQyZTViY2IwMGM2NTg4Y2E1NjI3OGRhMzEzZiIsImlhdCI6MTc0MTMwMjE3OC41OTEwMDQsIm5iZiI6MTc0MTMwMjE3OC41OTEwMDksImV4cCI6MTc3MjgzODE3OC41Mjg1MjcsInN1YiI6IjIiLCJzY29wZXMiOltdfQ.enW7hFSLe39rCdvc-3UyXH14C4aI0WoOAKKgrGF7mHIHMKcNzlXQEUmshbxSR2NdqWZcouSJna5Y0vbhM8Ik3BDxoTXby65HlGfNfsycjFnsVjTd0JoUsxN4QWuZOViwwPiIls2osTUZt1Bhx2UNuD5XsManhxbWFcet6qoN4Lz78dj1WSB4bt_YGjldYG9yXwpFOsdyHU3-A8b1ISaJdR5wQY42HxY2FN1NHfzaSBHTPDulQtOeBJFUndBWrnsitAsF4sRz5TbHlqbqUTHO8fdoQft7nPj7KO8zXrBrcKeCHNCckrRFh1rqnYQlM01At6iUQBS50VGQDlWjdb3BjmdBgshyBJoimPUJvQVJW1gJkjxcJ7oAzmbxQ0ND8zp7eemkliyrJdGjzwBnLv0urTZ_hKuI-uIdoZkG7huNlDQl2hEZ09YletPEnL0Bc0uqbQeC50u76Q4wAhRI7Zsh9f-O72652PLSjcWyLWwFvgCHgsHyyuHyP5X7VhRz6ADDN7f_wJmNwn8flrLyz7EUwOezecGpkxCGTx9iwQ2ZX2hevwyTvYrP22lqbkr5VpxbmZPvccPztMxh8t1knvqDqJMV4jIb-9Ox4vI0gF1Y06T0ftaEvLX-cYVjOJMpOoaOr2pdf4J5pQkBll9bYXMY9d-8Yye1_u_Ok7JI-8fIfpI"
+}
+```
+
+## Testing Credentials
+
+### email: `admin@example.com`
+### password: `password`

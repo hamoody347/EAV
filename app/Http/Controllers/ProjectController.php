@@ -68,7 +68,7 @@ class ProjectController extends Controller
             }
         }
 
-        $project->load('attributeValues');
+        $project->load('attributeValues.attribute');
 
         return response()->json($project, 201);
     }
@@ -104,7 +104,7 @@ class ProjectController extends Controller
             }
         }
 
-        $project->load('attributeValues');
+        $project->load('attributeValues.attribute');
 
         return response()->json($project);
     }
