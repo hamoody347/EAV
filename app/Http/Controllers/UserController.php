@@ -9,9 +9,11 @@ use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::all();
+        $filters = $request->get('filters', []);
+
+        $users = User::filter($filters)->get();
         return response()->json($users);
     }
 

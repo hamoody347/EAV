@@ -13,7 +13,21 @@ class ProjectController extends Controller
 {
     public function index(Request $request)
     {
-        $projects = Project::with('attributeValues.attribute')->get();
+        /**
+         * This will be used to get the filters.
+         * By default all filters will use the "=" operator.
+         *
+         * The syntax to pass a filter will be projects?filters[name]=Project1. This should have the exact field name.
+         *
+         * For the use of different operators, pass the name of the field followed by _operator and then the operator itself
+         * projects?filters[name]=Project1&filters[name_operator]=LIKE
+         *
+         * The possible operators are >, <, gt, lt, LIKE and like
+         */
+
+        $filters = $request->get('filters', []);
+
+        $projects = Project::filter($filters)->with('attributeValues.attribute')->get();
 
         return response()->json($projects);
     }
@@ -30,9 +44,9 @@ class ProjectController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string',
             'status' => 'required|string',
-            'attributes' => 'nullable|array',
-            'attributes.*.attribute_id' => 'required|exists:attributes,id',
-            'attributes.*.value' => 'required|string',
+            'attrs' => 'nullable|array',
+            'attrs.*.attribute_id' => 'required|exists:attributes,id',
+            'attrs.*.value' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -44,14 +58,17 @@ class ProjectController extends Controller
             'status' => $request->status,
         ]);
 
-        if ($request->has('attributes')) {
-            foreach ($request->attributes as $attribute) {
+
+        if ($request->has('attrs')) {
+            foreach ($request->attrs as $attribute) {
                 $project->attributeValues()->create([
                     'attribute_id' => $attribute['attribute_id'],
                     'value' => $attribute['value'],
                 ]);
             }
         }
+
+        $project->load('attributeValues');
 
         return response()->json($project, 201);
     }
@@ -61,9 +78,9 @@ class ProjectController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string',
             'status' => 'required|string',
-            'attributes' => 'nullable|array',
-            'attributes.*.attribute_id' => 'required|exists:attributes,id',
-            'attributes.*.value' => 'required|string',
+            'attrs' => 'nullable|array',
+            'attrs.*.attribute_id' => 'required|exists:attributes,id',
+            'attrs.*.value' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -76,10 +93,10 @@ class ProjectController extends Controller
             'status' => $request->status,
         ]);
 
-        if ($request->has('attributes')) {
+        if ($request->has('attrs')) {
             $project->attributeValues()->delete();
 
-            foreach ($request->attributes as $attribute) {
+            foreach ($request->attrs as $attribute) {
                 $project->attributeValues()->create([
                     'attribute_id' => $attribute['attribute_id'],
                     'value' => $attribute['value'],
@@ -87,44 +104,22 @@ class ProjectController extends Controller
             }
         }
 
+        $project->load('attributeValues');
+
         return response()->json($project);
     }
 
-    public function createAttribute(Request $request)
+    public function destroy($id)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string',
-            'type' => 'required|string|in:text,date,number,select',
-        ]);
+        $project = Project::find($id);
 
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
+        if (!$project) {
+            return response()->json(['message' => 'Project not found'], 404);
         }
 
-        $attribute = Attribute::create([
-            'name' => $request->name,
-            'type' => $request->type,
-        ]);
+        $project->attributeValues()->delete();
+        $project->delete();
 
-        return response()->json($attribute, 201);
-    }
-
-    public function filter(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'attribute_id' => 'required|exists:attributes,id',
-            'value' => 'required|string',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
-        }
-
-        $projects = Project::whereHas('attributeValues', function ($query) use ($request) {
-            $query->where('attribute_id', $request->attribute_id)
-                ->where('value', 'like', '%' . $request->value . '%');
-        })->get();
-
-        return response()->json($projects);
+        return response()->json(['message' => 'Project deleted successfully'], 200);
     }
 }

@@ -7,9 +7,11 @@ use Illuminate\Http\Request;
 
 class TimesheetController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $timesheets = Timesheet::all();
+        $filters = $request->get('filters', []);
+
+        $timesheets = Timesheet::filter($filters)->get();
         return response()->json($timesheets);
     }
 
